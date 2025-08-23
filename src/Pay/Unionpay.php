@@ -75,7 +75,7 @@ class Unionpay
             'encoding'      => 'UTF-8', // 编码方式
             'merId'         => $config['mchid'], // 商户代码
             'accessType'    => '0', // 接入类型
-            'currencyCode'  => '156', // 交易币种
+            'currencyCode'  => $order['currency'] ?? '156', // 交易币种
             'backUrl'       => self::$config['notify_url'], // 后台通知地址
 
             'certId'        => self::getCertId(self::$config['sign_path'], self::$config['sign_pwd']), //证书ID

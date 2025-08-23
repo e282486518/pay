@@ -99,7 +99,7 @@ class Wechat
             'description'   => $order['body'], // 商品描述
             'out_trade_no'  => (string)$order['order_sn'], // 商户系统内部订单号
             'notify_url'    => $config['notify_url'], // 通知URL必须为直接可访问的URL
-            'amount'        => ['total' => (int)$order['total_amount'], 'currency' => 'CNY'], // 订单金额信息
+            'amount'        => ['total' => (int)$order['total_amount'], 'currency' => $order['currency'] ?? 'CNY'], // 订单金额信息
         );
         if (self::$facilitator) {
             $params['sp_appid'] = $config['sp_appid']; // 服务商应用ID
@@ -386,7 +386,7 @@ class Wechat
             'funds_account' => 'AVAILABLE', // 退款资金来源
             'amount' => [
                     'refund' => (int)$order['refund_amount'],
-                    'currency' => 'CNY',
+                    'currency' => $order['currencyy'] ?? 'CNY',
                 ]
         );
         if (!empty($order['transaction_id'])) {
