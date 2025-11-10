@@ -158,7 +158,7 @@ class Alipay
     public static function xcx($order){
         $config = self::$config;
         if(empty($order['order_sn']) || empty($order['total_amount']) || (empty($order['buyer_id']) && empty($order['buyer_open_id']))){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $order['product_code'] = 'JSAPI_PAY'; //销售产品码，商家和支付宝签约的产品码，APP支付为固定值QUICK_MSECURITY_PAY
         $order['op_app_id'] = $config['xcx_id'];
@@ -236,7 +236,7 @@ class Alipay
     {
         $config = self::$config;
         if(empty($order['refund_sn']) || empty($order['refund_amount']) || (empty($order['order_sn']) && empty($order['trade_no']))){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
 
         $refund['refund_amount'] = $order['refund_amount'];
@@ -263,7 +263,7 @@ class Alipay
      */
     public static function refundQuery($order) {
         if(empty($order['refund_sn']) || (empty($order['order_sn']) && empty($order['trade_no']))){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $refund['out_request_no'] = (string)$order['refund_sn'];
 
@@ -308,7 +308,7 @@ class Alipay
     // 转账查询
     public static function transQuery($order) {
         if(empty($order['order_sn']) && empty($order['order_id']) && empty($order['pay_fund_order_id'])){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
 
         empty($order['order_id']) || $transfer['order_id'] = (string)$order['order_id'];
@@ -393,7 +393,7 @@ class Alipay
         } elseif (!empty($order['settle_no'])) {
             $settle['settle_no'] = (string)$order['settle_no'];
         } else {
-            die('参数缺失');
+            throw new \Exception('参数缺失');
         }
         $params['method'] = 'alipay.trade.order.settle.query'; // 接口名称
         $params = self::unifiedOrder($settle, $params, true);
@@ -478,7 +478,7 @@ class Alipay
             $bizString = http_build_query($urlObj);
             $url = 'https://openauth' . ($config['is_sandbox'] ? '-sandbox.dl.alipaydev' : '.alipay') . '.com/oauth2/publicAppAuthorize.htm?' . $bizString;
             Header("Location: $url");
-            exit();
+            //exit();
         }
     }
 
@@ -539,7 +539,9 @@ class Alipay
         $res = "-----BEGIN RSA PRIVATE KEY-----\n" .
             wordwrap($priKey, 64, "\n", true) .
             "\n-----END RSA PRIVATE KEY-----";
-        ($res) or die('您使用的私钥格式错误，请检查RSA私钥配置');
+        if(!$res){
+            throw new \Exception('您使用的私钥格式错误，请检查RSA私钥配置');
+        }
         if (self::$signType == "RSA2") {
             //OPENSSL_ALGO_SHA256是php5.4.8以上版本才支持
             openssl_sign($data, $sign, $res, version_compare(PHP_VERSION,'5.4.0', '<') ? SHA256 : OPENSSL_ALGO_SHA256);

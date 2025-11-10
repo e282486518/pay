@@ -372,7 +372,7 @@ class Bytedance
     public static function success()
     {
         $array = ['err_no'=>0, 'err_tips'=>'success'];
-        die(json_encode($array));
+        return json_encode($array, JSON_UNESCAPED_UNICODE);
     }
 
     /**

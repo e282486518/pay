@@ -149,7 +149,7 @@ class Unionpay
      */
     public static function query($order) {
         if(empty($order['order_sn']) || empty($order['txn_time'])){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $order = [
             'orderId' => $order['order_sn'],
@@ -178,7 +178,7 @@ class Unionpay
     public static function refund($order, $type=false) {
         $config = self::$config;
         if(empty($order['refund_sn']) || empty($order['query_id'])){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
 
         $order = [

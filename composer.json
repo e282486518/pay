@@ -9,7 +9,9 @@
         }
     ],
     "require": {
-        "fengkui/supports": "*"
+      "fengkui/supports": "*",
+      "ext-json": "*",
+      "ext-openssl": "*"
     },
     "autoload": {
         "psr-4": {

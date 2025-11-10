@@ -72,7 +72,7 @@ class Paypal
                 "cancel_url" => $order['cancel_url'] ?? self::$config['cancel_url'],
             ]
         ];
-        $body = json_encode($data);
+        $body = json_encode($data, JSON_UNESCAPED_UNICODE);
         $res = Http::post($url, $body, $headers, false);
         $resArr = is_string($res) ? json_decode($res, true) : $res;
         if (!empty($resArr['links'])) {
@@ -126,7 +126,7 @@ class Paypal
                 "currency_code" => $currency
             ]
         ];
-        $body = json_encode($data);
+        $body = json_encode($data, JSON_UNESCAPED_UNICODE);
         $res = Http::post($url, $body, $headers, false);
         return is_string($res) ? json_decode($res, true) : $res;
     }
@@ -171,7 +171,7 @@ class Paypal
             "Authorization: Bearer {$accessToken}"
         ];
 
-        $res = Http::post($url, json_encode($verifyData), $verifyHeaders, false);
+        $res = Http::post($url, json_encode($verifyData, JSON_UNESCAPED_UNICODE), $verifyHeaders, false);
         $resArr = is_string($res) ? json_decode($res, true) : $res;
         return isset($resArr['verification_status']) && $resArr['verification_status'] === 'SUCCESS';
     }

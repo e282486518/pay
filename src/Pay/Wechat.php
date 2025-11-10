@@ -200,7 +200,7 @@ class Wechat
     public static function js($order=[]){
         $config = self::$config;
         if (!is_array($order) || count($order) < 3)
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         if (count($order) == 4 && !empty($order['openid'])) {
             $data = self::xcx($order, false, false); // 获取支付相关信息(获取非小程序信息)
             return $data;
@@ -233,7 +233,7 @@ class Wechat
             $url .= '?data=' . json_encode($data, JSON_UNESCAPED_UNICODE);
         }
         header('Location: '. $url);
-        die;
+        //die;
     }
 
     /**
@@ -244,7 +244,7 @@ class Wechat
     public static function app($order=[], $log=false)
     {
         if(empty($order['order_sn']) || empty($order['total_amount']) || empty($order['body'])){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $order['type'] = 'app'; // 获取订单类型，用户拼接请求地址
         $result = self::unifiedOrder($order, true);
@@ -273,7 +273,7 @@ class Wechat
     {
         $order['type'] = isset($order['type']) ? strtolower($order['type']) : 'wap';
         if(empty($order['order_sn']) || empty($order['total_amount']) || empty($order['body']) || !in_array($order['type'], ['ios', 'android', 'wap'])){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $result = self::unifiedOrder($order);
         if (!empty($result['h5_url'])) {
@@ -293,7 +293,7 @@ class Wechat
     public static function xcx($order=[], $log=false, $type=true)
     {
         if(empty($order['order_sn']) || empty($order['total_amount']) || empty($order['body']) || empty($order['openid'])){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $order['type'] = 'jsapi'; // 获取订单类型，用户拼接请求地址
         $config = self::$config;
@@ -321,7 +321,7 @@ class Wechat
     public static function scan($order=[], $log=false)
     {
         if(empty($order['order_sn']) || empty($order['total_amount']) || empty($order['body'])){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $order['type'] = 'native'; // Native支付
         $result = self::unifiedOrder($order);
@@ -379,7 +379,7 @@ class Wechat
     {
         $config = self::$config;
         if(empty($order['refund_sn']) || empty($order['refund_amount']) || (empty($order['order_sn']) && empty($order['transaction_id']))){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $params = array(
             'out_refund_no' => (string)$order['refund_sn'], // 商户退款单号
@@ -440,10 +440,10 @@ class Wechat
     {
         $config = self::$config;
         if (empty($order['order_sn']) || empty($order['openid']) || empty($order['amount']) || empty($order['remark']) || empty($order['scene_id']) || empty($order['scene_info']))
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
 
         if ($order['amount'] >= 200000 && empty($order['name']))
-            die("单笔金额大于两千，请填写用户姓名");
+            throw new \Exception("单笔金额大于两千，请填写用户姓名");
             
         $params = array(
             'appid'             => $config['appid'] ?: $config['xcxid'], // 商户账号appid,企业号corpid即为此AppID）
@@ -514,13 +514,13 @@ class Wechat
         if (empty($order['list']) && isset($order['openid']) && !empty($order['amount']))
             $order['list'] = [['account' => $order['openid'], 'amount' => $order['amount']]];
         if(empty($order['transaction_id']) || (empty($order['order_sn']) && empty($order['list']))){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $list = [];
         foreach ($order['list'] as $k => $v) {
             $detail = [];
             if (empty($v['account']) || empty($v['amount']))
-                die("请填写分账详细信息！");
+                throw new \Exception("请填写分账详细信息！");
 
             // 分账接收方类型
             $detail['type'] = isset($v['type']) ? $v['type'] : (mb_strlen($v['account']) != 28 ? 'MERCHANT_ID' : (self::$facilitator ? 'PERSONAL_SUB_OPENID' : 'PERSONAL_OPENID'));
@@ -564,7 +564,7 @@ class Wechat
     public static function profitsharingUnfreeze($order=[])
     {
         if (empty($order['transaction_id']) || empty($order['order_sn']))
-            die("转账单号缺失");
+            throw new \Exception("转账单号缺失");
 
         $params['transaction_id'] = $order['transaction_id'];
         $params['out_order_no'] = $order['order_sn'];
@@ -587,7 +587,7 @@ class Wechat
     public static function profitsharingQuery($order = [])
     {
         if (is_array($order) && (empty($order['transaction_id']) || empty($order['order_sn']))) {
-            die("支付单号缺失");
+            throw new \Exception("支付单号缺失");
 
             $params['transaction_id'] = $order['transaction_id'];
             self::$facilitator && $params['sub_mchid'] = self::$config['mchid']; // 子商户的商户号
@@ -616,7 +616,7 @@ class Wechat
         $config = self::$config;
 
         if(empty($order['return_sn']) || empty($order['return_amount']) || (empty($order['order_sn']) && empty($order['order_id']))){
-            die("订单数组信息缺失！");
+            throw new \Exception("订单数组信息缺失！");
         }
         $params = array(
             'out_return_no' => (string)$order['return_sn'], // 商户回退单号
@@ -719,7 +719,7 @@ class Wechat
     public static function success()
     {
         $str = ['code'=>'SUCCESS', 'message'=>'成功'];
-        die(json_encode($str, JSON_UNESCAPED_UNICODE));
+        return json_encode($str, JSON_UNESCAPED_UNICODE);
     }
 
     /**

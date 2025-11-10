@@ -47,7 +47,7 @@ class Baidu
     public static function xcx($order)
     {
         if(!is_array($order) || count($order) < 3)
-            die("数组数据信息缺失！");
+            throw new \Exception("数组数据信息缺失！");
 
         $config = self::$config;
         $requestParamsArr = array(
@@ -210,7 +210,7 @@ class Baidu
         $data = $_POST; // 获取xml
         $config = self::$config;
         if (!$data || empty($data['rsaSign']))
-            die('暂无回调信息');
+            throw new \Exception('暂无回调信息');
 
         $result = self::verifySign($data, $config['public_key']); // 进行签名验证
         // 判断签名是否正确  判断支付状态
@@ -227,7 +227,7 @@ class Baidu
     public static function success()
     {
         $array = ['errno'=>0, 'msg'=>'success', 'data'=> ['isConsumed'=>2] ];
-        die(json_encode($array));
+        return json_encode($array,JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -236,7 +236,7 @@ class Baidu
     public static function error()
     {
         $array = ['errno'=>0, 'msg'=>'success', 'data'=> ['isErrorOrder'=>1, 'isConsumed'=>2] ];
-        die(json_encode($array));
+        return json_encode($array, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -283,7 +283,7 @@ class Baidu
             return false;
         }
         if (!function_exists('openssl_pkey_get_public') || !function_exists('openssl_verify')) {
-            throw new Exception("openssl扩展不存在");
+            throw new \Exception("openssl扩展不存在");
         }
 
         $sign = $assocArr['rsaSign'];
