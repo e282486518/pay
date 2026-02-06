@@ -8,6 +8,7 @@
 namespace fengkui\Pay;
 
 use Exception;
+use fengkui\SafeRequest;
 use RuntimeException;
 use fengkui\Supports\Http;
 
@@ -203,7 +204,7 @@ class Unionpay
     // 银联异步通知
     public static function notify($response = null){
         $config = self::$config;
-        $response = $response ?: $_POST;
+        $response = $response ?: SafeRequest::safe_post();
         $result = is_array($response) ? $response : json_decode($response, true);
         $signature = $result['signature'] ?? '';
 
@@ -345,9 +346,10 @@ class Unionpay
         if ($certInfo['validFrom_time_t'] > time() || $certInfo['validTo_time_t']  < time()) {
             throw new \Exception("[ 404 ] >>>>>证书已到期失效<<<<<<<");
         }
+        $server = SafeRequest::safe_server();
         $acpArry = array(
-            $_SERVER ['DOCUMENT_ROOT'] . trim($config['acp_root'], '.'),
-            $_SERVER ['DOCUMENT_ROOT'] . trim($config['acp_middle'], '.')
+            $server['DOCUMENT_ROOT'] . trim($config['acp_root'], '.'),
+            $server['DOCUMENT_ROOT'] . trim($config['acp_middle'], '.')
         );
         $result = openssl_x509_checkpurpose($public_key, X509_PURPOSE_ANY, $acpArry);
         if($result !== TRUE)

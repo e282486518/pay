@@ -5,6 +5,7 @@
  * @Last Modified by:   [FENG] <1161634940@qq.com>
  * @Last Modified time: 2020-10-22T18:35:29+08:00
  */
+
 namespace fengkui;
 
 use Exception;
@@ -23,7 +24,8 @@ class Pay
      * [__construct 构造函数]
      * @param [type] $config [传递小程序相关配置]
      */
-    public function __construct(array $config=[]){
+    public function __construct(array $config = [])
+    {
         $config && self::$config = $config;
     }
 
@@ -49,8 +51,8 @@ class Pay
         $method = ucfirst(strtolower($method));
         $className = __CLASS__ . '\\' . $method;
         if (!class_exists($className)) { // 当类不存在是自动加载
-            spl_autoload_register(function($method){
-                $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . basename (__CLASS__) . '/' . $method . '.php';
+            spl_autoload_register(function ($method) {
+                $filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . basename(__CLASS__) . '/' . $method . '.php';
                 if (is_readable($filename)) {
                     require $filename;
                 }

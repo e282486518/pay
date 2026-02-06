@@ -8,6 +8,7 @@
 namespace fengkui\Pay;
 
 use Exception;
+use fengkui\SafeRequest;
 use RuntimeException;
 use fengkui\Supports\Http;
 
@@ -218,7 +219,7 @@ class Alipay
     // 支付宝异步通知
     public static function notify($response = null){
         $config = self::$config;
-        $response = $response ?: $_POST;
+        $response = $response ?: SafeRequest::safe_post();
         $result = is_array($response) ? $response : json_decode($response, true);
         $sign = $result['sign'] ?? '';
 
@@ -444,8 +445,10 @@ class Alipay
     public function getToken($type = true)
     {
         $config = self::$config;
+        $get = SafeRequest::safe_get();
+        $server = SafeRequest::safe_server();
         //通过code获得access_token和user_id
-        if (isset($_GET['auth_code'])){
+        if (isset($get['auth_code'])){
             //获取code码，以获取openid
             $params = array(
                 'app_id'    => $config['app_id'],
@@ -456,7 +459,7 @@ class Alipay
                 'timestamp' => date('Y-m-d H:i:s'),
                 'version'   => self::$version,
                 'grant_type' =>'authorization_code',
-                'code'  => $_GET['auth_code'],
+                'code'  => $get['auth_code'],
             );
 
             $params["sign"] = self::makeSign($params);
@@ -469,9 +472,9 @@ class Alipay
             return $result;
         } else {
             //触发返回code码
-            $scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 'https://' : 'http://';
-            $redirectUrl = urlencode($scheme.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
-            $_SERVER['QUERY_STRING'] && $redirectUrl = $baseUrl.'?'.$_SERVER['QUERY_STRING'];
+            $scheme = isset($server['HTTPS']) && $server['HTTPS']=='on' ? 'https://' : 'http://';
+            $redirectUrl = urlencode($scheme.$server['HTTP_HOST'].$server['PHP_SELF']);
+            $server['QUERY_STRING'] && $redirectUrl = $baseUrl.'?'.$server['QUERY_STRING'];
             $urlObj['app_id'] = $config['app_id'];
             $urlObj['scope'] = $type ? 'auth_base' : 'auth_user';
             $urlObj['redirect_uri'] = urldecode($redirectUrl);

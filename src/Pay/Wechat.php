@@ -8,6 +8,7 @@
 namespace fengkui\Pay;
 
 use Exception;
+use fengkui\SafeRequest;
 use RuntimeException;
 use fengkui\Supports\Http;
 
@@ -205,8 +206,9 @@ class Wechat
             $data = self::xcx($order, false, false); // 获取支付相关信息(获取非小程序信息)
             return $data;
         }
-        $code = !empty($order['code']) ? $order['code'] : ($_GET['code'] ?? '');
-        $redirectUri = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . rtrim($_SERVER['REQUEST_URI'], '/') . '/'; // 重定向地址
+        $server = SafeRequest::safe_server();
+        $code = !empty($order['code']) ? $order['code'] : SafeRequest::safe_get('code', '');
+        $redirectUri = $server['REQUEST_SCHEME'] . '://' . $server['HTTP_HOST'] . rtrim($server['REQUEST_URI'], '/') . '/'; // 重定向地址
         $params = ['appid' => $config['appid']];
         // 如果没有get参数没有code；则重定向去获取code；
         if (empty($code)) {
@@ -342,7 +344,7 @@ class Wechat
         $config = self::$config;
         $response = file_get_contents('php://input', 'r');
         if ($is_verify) { // 是否进行签名验证
-            $server = $_SERVER;
+            $server = SafeRequest::safe_server();
             if (empty($response) || empty($server['HTTP_WECHATPAY_SIGNATURE']))
                 return false;
             $body = [
@@ -357,7 +359,13 @@ class Wechat
             }
         }
         $result = json_decode($response, true);
-        $event_type_array = ['TRANSACTION.SUCCESS', 'MCHTRANSFER.BILL.FINISHED'];
+        $event_type_array = [
+            'TRANSACTION.SUCCESS', // 支付成功
+            'MCHTRANSFER.BILL.FINISHED', // 商家转账通知
+            'REFUND.SUCCESS',  // 退款成功通知
+            'REFUND.ABNORMAL', // 退款异常通知
+            'REFUND.CLOSED',   // 退款关闭通知
+        ];
         if (empty($result['event_type']) || !in_array($result['event_type'], $event_type_array)) {
             return false;
         }

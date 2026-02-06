@@ -7,6 +7,7 @@
  */
 namespace fengkui\Pay;
 
+use fengkui\SafeRequest;
 use fengkui\Supports\Http;
 
 /**
@@ -207,7 +208,7 @@ class Baidu
      */
     public static function notify()
     {
-        $data = $_POST; // 获取xml
+        $data = SafeRequest::safe_post(); // 获取xml
         $config = self::$config;
         if (!$data || empty($data['rsaSign']))
             throw new \Exception('暂无回调信息');
