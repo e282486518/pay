@@ -220,4 +220,17 @@ class SafeRequest
         $keyUc = str_replace('_', '-', strtoupper($key));
         return $allHeaders[$key] ?? $allHeaders[$keyUc] ?? $default;
     }
+    
+    /**
+	 * 仅兼容读取 php://input 原始请求体（Octane/FPM通用）
+	 */
+	public static function php_input(): string
+	{
+	    // Laravel 环境(Octane/FPM)：官方标准方法，永不失效
+	    if (self::is_laravel()) {
+	        return request()->getContent();
+	    }
+	    // 原生PHP环境
+	    return file_get_contents('php://input');
+	}
 }

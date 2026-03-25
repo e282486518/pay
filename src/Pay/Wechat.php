@@ -342,7 +342,7 @@ class Wechat
     public static function notify($is_verify = true)
     {
         $config = self::$config;
-        $response = file_get_contents('php://input', 'r');
+        $response = SafeRequest::php_input();
         if ($is_verify) { // 是否进行签名验证
             $Signature = SafeRequest::safe_header('Wechatpay-Signature', '');
             $Serial    = SafeRequest::safe_header('Wechatpay-Serial', '');

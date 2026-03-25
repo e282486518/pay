@@ -129,7 +129,7 @@ class Bytedance
     public static function notifyOrder()
     {
         $config = self::$config;
-        $response = file_get_contents('php://input', 'r');
+        $response = SafeRequest::php_input();
         $result = json_decode($response, true);
         if (!$result || empty($result['msg']))
             throw new \Exception("[400] 暂无回调信息");
@@ -221,7 +221,7 @@ class Bytedance
     public static function notifyRefund()
     {
         $config = self::$config;
-        $response = file_get_contents('php://input', 'r');
+        $response = SafeRequest::php_input();
         $result = json_decode($response, true);
         if (!$result || empty($result['msg']))
             throw new \Exception("[400] 暂无回调信息");
@@ -307,7 +307,7 @@ class Bytedance
     public static function notifySettle()
     {
         $config = self::$config;
-        $response = file_get_contents('php://input', 'r');
+        $response = SafeRequest::php_input();
         $result = json_decode($response, true);
         if (!$result || empty($result['msg']))
             throw new \Exception("[400] 暂无回调信息");
