@@ -208,7 +208,7 @@ class Wechat
         }
         $server = SafeRequest::safe_server();
         $code = !empty($order['code']) ? $order['code'] : SafeRequest::safe_get('code', '');
-        $redirectUri = $server['REQUEST_SCHEME'] . '://' . $server['HTTP_HOST'] . rtrim($server['REQUEST_URI'], '/') . '/'; // 重定向地址
+        $redirectUri = ($server['REQUEST_SCHEME'] ?? 'https') . '://' . $server['HTTP_HOST'] . rtrim($server['REQUEST_URI'], '/') . '/'; // 重定向地址
         $params = ['appid' => $config['appid']];
         // 如果没有get参数没有code；则重定向去获取code；
         if (empty($code)) {

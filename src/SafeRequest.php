@@ -57,10 +57,10 @@ class SafeRequest
             // 强制补全：和 PHP-FPM 完全一致的参数（对齐你的返回）
             // ==============================================
             $complete = [
-                'REQUEST_SCHEME'   => $request->getScheme(),
-                'HTTPS'            => $request->isSecure() ? 'on' : 'off',
-                'PHP_SELF'         => '/index.php',
-                'QUERY_STRING'     => $request->getQueryString() ?? '',
+                'REQUEST_SCHEME'   => $server['REQUEST_SCHEME'] ?? $request->getScheme(),
+                'HTTPS'            => $server['HTTPS'] ?? $request->isSecure(), // 兼容
+                'PHP_SELF'         => $server['PHP_SELF'] ?? '/index.php',
+                'QUERY_STRING'     => $server['QUERY_STRING'] ?? $request->getQueryString() ?? '',
             ];
             $fullServer = array_merge($server, $complete);
 

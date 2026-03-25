@@ -472,9 +472,8 @@ class Alipay
             return $result;
         } else {
             //触发返回code码
-            $scheme = isset($server['HTTPS']) && $server['HTTPS']=='on' ? 'https://' : 'http://';
-            $redirectUrl = urlencode($scheme.$server['HTTP_HOST'].$server['PHP_SELF']);
-            $server['QUERY_STRING'] && $redirectUrl = $baseUrl.'?'.$server['QUERY_STRING'];
+            $scheme = $server['REQUEST_SCHEME'] ?? 'https';
+            $redirectUrl = urlencode($scheme.'://'.$server['HTTP_HOST'].rtrim($server['REQUEST_URI'], '/') . '/');
             $urlObj['app_id'] = $config['app_id'];
             $urlObj['scope'] = $type ? 'auth_base' : 'auth_user';
             $urlObj['redirect_uri'] = urldecode($redirectUrl);
