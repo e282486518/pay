@@ -50,7 +50,24 @@ class SafeRequest
             if (self::is_laravel_console()) {
                 return $key === null ? [] : $default;
             }
-            return $key === null ? request()->server() : request()->server($key, $default);
+
+            $request = request();
+            $server = $request->server();
+            // ==============================================
+            // 强制补全：和 PHP-FPM 完全一致的参数（对齐你的返回）
+            // ==============================================
+            $complete = [
+                'REQUEST_SCHEME'   => $request->getScheme(),
+                'HTTPS'            => $request->isSecure() ? 'on' : 'off',
+                'PHP_SELF'         => '/index.php',
+                'QUERY_STRING'     => $request->getQueryString() ?? '',
+            ];
+            $fullServer = array_merge($server, $complete);
+
+            if ($key === null) {
+                return $fullServer;
+            }
+            return $fullServer[$key] ?? $default;
         }
 
         // 场景2：纯PHP环境（无Laravel）
