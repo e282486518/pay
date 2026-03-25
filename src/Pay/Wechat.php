@@ -344,16 +344,19 @@ class Wechat
         $config = self::$config;
         $response = file_get_contents('php://input', 'r');
         if ($is_verify) { // 是否进行签名验证
-            $server = SafeRequest::safe_server();
-            if (empty($response) || empty($server['HTTP_WECHATPAY_SIGNATURE']))
+            $Signature = SafeRequest::safe_header('Wechatpay-Signature', '');
+            $Serial    = SafeRequest::safe_header('Wechatpay-Serial', '');
+            $Timestamp = SafeRequest::safe_header('Wechatpay-Timestamp', '');
+            $Nonce     = SafeRequest::safe_header('Wechatpay-Nonce', '');
+            if (empty($response) || empty($Signature))
                 return false;
             $body = [
-                'timestamp' => $server['HTTP_WECHATPAY_TIMESTAMP'],
-                'nonce' => $server['HTTP_WECHATPAY_NONCE'],
+                'timestamp' => $Timestamp,
+                'nonce' => $Nonce,
                 'data' => $response,
             ];
             // 验证应答签名
-            $verifySign = self::verifySign($body, trim($server['HTTP_WECHATPAY_SIGNATURE']), trim($server['HTTP_WECHATPAY_SERIAL']));
+            $verifySign = self::verifySign($body, trim($Signature), trim($Serial));
             if (!$verifySign) {
                 throw new \Exception("[ 401 ] SIGN_ERROR 签名错误");
             }

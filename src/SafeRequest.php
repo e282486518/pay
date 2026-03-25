@@ -174,4 +174,50 @@ class SafeRequest
         }
         return $postData[$key] ?? $default;
     }
+    
+    /**
+     * 安全获取请求头（兼容 Octane / PHP-FPM / 原生PHP）
+     * @param string|null $key 头名称，null 返回所有头
+     * @param mixed $default 默认值
+     * @return mixed|array
+     */
+    public static function safe_header(string $key = null, mixed $default = null): mixed
+    {
+        // 1. Laravel 环境（Octane / FPM 通用，最优方案）
+        if (self::is_laravel()) {
+            // 命令行无请求，返回空/默认值
+            if (self::is_laravel_console()) {
+                return $key === null ? [] : $default;
+            }
+
+            $headers = request()->headers;
+            // key=null 返回所有请求头（数组格式）
+            if ($key === null) {
+                return $headers->all();
+            }
+            // 获取指定请求头
+            return $headers->get($key, $default);
+        }
+
+        // 2. 原生 PHP 环境（兼容传统非Laravel项目）
+        $allHeaders = [];
+        foreach ($_SERVER as $name => $value) {
+            // 只提取 HTTP_ 开头的请求头
+            if (str_starts_with($name, 'HTTP_')) {
+                // 转换格式：HTTP_WECHATPAY_SIGNATURE → Wechatpay-Signature
+                $headerName = str_replace('_', '-', substr($name, 5));
+                $headerName = ucwords($headerName, '-');
+                $allHeaders[$headerName] = $value;
+            }
+        }
+
+        // key=null 返回所有头
+        if ($key === null) {
+            return $allHeaders;
+        }
+
+        // 支持两种格式传参：Wechatpay-Signature / WECHATPAY_SIGNATURE
+        $keyUc = str_replace('_', '-', strtoupper($key));
+        return $allHeaders[$key] ?? $allHeaders[$keyUc] ?? $default;
+    }
 }
