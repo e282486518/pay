@@ -233,4 +233,15 @@ class SafeRequest
 	    // 原生PHP环境
 	    return file_get_contents('php://input');
 	}
+
+    public static function redirect_url(string $url)
+	{
+        // 改为
+        if (self::is_laravel()) {
+            return redirect($url);
+        } else {
+            header('Location: '. $url);
+            die();
+        }
+	}
 }

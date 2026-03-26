@@ -18,7 +18,7 @@ class Pay
     /**
      * $config 相关配置
      */
-    protected static $config = [];
+    protected $config = [];
 
     /**
      * [__construct 构造函数]
@@ -26,7 +26,7 @@ class Pay
      */
     public function __construct(array $config = [])
     {
-        $config && self::$config = $config;
+        $config && $this->config = $config;
     }
 
     /**
@@ -46,7 +46,7 @@ class Pay
      * @param  [type] $method [description]
      * @return [type]         [description]
      */
-    protected static function create($method)
+    protected function create($method)
     {
         $method = ucfirst(strtolower($method));
         $className = __CLASS__ . '\\' . $method;
@@ -60,9 +60,8 @@ class Pay
             $className = $method;
         }
 
-
         if (class_exists($className)) {
-            return new $className(self::$config);
+            return new $className($this->config);
         } else {
             throw new Exception("ClassName [{$className}] Not Exists");
         }

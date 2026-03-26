@@ -234,7 +234,7 @@ class Wechat
             $url = $config['redirect_url'] ?? $redirectUri;
             $url .= '?data=' . json_encode($data, JSON_UNESCAPED_UNICODE);
         }
-        header('Location: '. $url);
+        SafeRequest::redirect_url($url);
         //die;
     }
 

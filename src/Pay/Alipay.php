@@ -479,7 +479,7 @@ class Alipay
             $urlObj['redirect_uri'] = urldecode($redirectUrl);
             $bizString = http_build_query($urlObj);
             $url = 'https://openauth' . ($config['is_sandbox'] ? '-sandbox.dl.alipaydev' : '.alipay') . '.com/oauth2/publicAppAuthorize.htm?' . $bizString;
-            Header("Location: $url");
+            SafeRequest::redirect_url($url);
             //exit();
         }
     }
