@@ -225,6 +225,9 @@ class Wechat
 
             $response = Http::get(self::$accessTokenUrl, $params); // 进行GET请求
             $result = json_decode($response, true);
+            if (empty($result['openid'])) {
+                throw new \Exception("获取openid失败 [" . ($result['errcode'] ?? '') . "] " . ($result['errmsg'] ?? ''));
+            }
             $order['openid'] = $result['openid']; // 获取到的openid
             $data = self::xcx($order, false, false); // 获取支付相关信息(获取非小程序信息)
 
